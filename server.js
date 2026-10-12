@@ -2,9 +2,15 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ссылка на ваш заблокированный Cloudflare Worker
 const WORKER_URL = 'https://subs.hifi91.workers.dev';
 
 app.get('/', async (req, res) => {
+    // РАЗРЕШАЕМ CORS для любых сайтов/браузеров
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
     try {
         const response = await fetch(WORKER_URL);
         if (!response.ok) {
@@ -15,7 +21,7 @@ app.get('/', async (req, res) => {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         res.setHeader('Subscription-Userinfo', 'upload=0; download=0; total=1073741824000; expire=0');
-
+        
         return res.send(data.trim());
     } catch (err) {
         return res.status(500).send(`Failed to fetch from worker: ${err.message}`);
